@@ -4,6 +4,7 @@ import type { CharacterState, StageProgress } from '../types'
 const STORAGE_KEYS = {
   character: (name: string) => `gureumtype:character:${name}`,
   stageProgress: (characterName: string) => `gureumtype:stageprogress:${characterName}`,
+  lastCharacterName: 'gureumtype:lastCharacterName',
 } as const
 
 // ── 캐릭터 저장/불러오기/삭제 ──────────────────────────────────────────────
@@ -62,5 +63,24 @@ export function loadStageProgress(characterName: string): StageProgress[] {
   } catch {
     console.warn('[storage] loadStageProgress 실패:', characterName)
     return []
+  }
+}
+
+// ── 마지막 캐릭터 이름 저장/불러오기 ───────────────────────────────────────
+// 앱 최초 로드 시 저장된 캐릭터 존재 여부 확인에 사용
+
+export function saveLastCharacterName(name: string): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.lastCharacterName, name)
+  } catch {
+    console.warn('[storage] saveLastCharacterName 실패')
+  }
+}
+
+export function loadLastCharacterName(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.lastCharacterName)
+  } catch {
+    return null
   }
 }

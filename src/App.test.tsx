@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect, beforeEach } from 'vitest'
 import App from './App'
 
 describe('App', () => {
-  // AC 기본 렌더링
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  // AC 기본 렌더링 — WelcomeScreen이 제목/부제목 보유
   it('구름 타자연습기 제목이 표시된다', () => {
     render(<App />)
     expect(screen.getByText('구름 타자연습기')).toBeInTheDocument()
@@ -42,5 +47,41 @@ describe('App', () => {
     render(<App />)
     const heading = screen.getByRole('heading', { level: 1 })
     expect(heading).toHaveClass('text-cloud-primary')
+  })
+})
+
+describe('App 라우팅', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('저장된 캐릭터가 없으면 WelcomeScreen을 렌더링한다', () => {
+    render(<App />)
+    expect(screen.getByTestId('welcome-screen')).toBeInTheDocument()
+  })
+
+  it('저장된 캐릭터가 있으면 HomeScreen을 렌더링한다', () => {
+    localStorage.setItem('gureumtype:lastCharacterName', '구름이')
+    localStorage.setItem(
+      'gureumtype:character:구름이',
+      JSON.stringify({ name: '구름이', level: 1, xp: 0, maxXp: 100 })
+    )
+    render(<App />)
+    expect(screen.getByTestId('home-screen')).toBeInTheDocument()
+  })
+
+  it('lastCharacterName은 있지만 캐릭터 데이터가 없으면 WelcomeScreen을 렌더링한다', () => {
+    localStorage.setItem('gureumtype:lastCharacterName', '구름이')
+    // character 데이터 없음
+    render(<App />)
+    expect(screen.getByTestId('welcome-screen')).toBeInTheDocument()
+  })
+
+  it('WelcomeScreen "시작하기" 버튼 클릭 시 HomeScreen으로 전환된다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    expect(screen.getByTestId('welcome-screen')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '시작하기' }))
+    expect(screen.getByTestId('home-screen')).toBeInTheDocument()
   })
 })

@@ -13,6 +13,7 @@ function WelcomeScreen({ onNext }: WelcomeScreenProps) {
         게임처럼 즐기는 한글 타자 연습
       </p>
       <button
+        type="button"
         onClick={onNext}
         className="bg-cloud-primary text-white font-noto font-semibold px-8 py-3 rounded-xl text-lg hover:opacity-90 active:scale-95 transition-all"
       >

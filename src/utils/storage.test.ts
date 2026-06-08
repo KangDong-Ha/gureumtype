@@ -5,6 +5,8 @@ import {
   clearCharacter,
   saveStageProgress,
   loadStageProgress,
+  saveLastCharacterName,
+  loadLastCharacterName,
 } from './storage'
 import type { CharacterState, StageProgress } from '../types'
 
@@ -112,5 +114,40 @@ describe('storage — 스테이지 진행 현황', () => {
   it('loadStageProgress — JSON null 저장 시 빈 배열 반환', () => {
     localStorage.setItem('gureumtype:stageprogress:구름이', 'null')
     expect(loadStageProgress('구름이')).toEqual([])
+  })
+})
+
+describe('lastCharacterName', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.restoreAllMocks()
+  })
+
+  it('saveLastCharacterName — 이름을 저장한다', () => {
+    saveLastCharacterName('구름이')
+    expect(localStorage.getItem('gureumtype:lastCharacterName')).toBe('구름이')
+  })
+
+  it('loadLastCharacterName — 저장된 이름을 반환한다', () => {
+    localStorage.setItem('gureumtype:lastCharacterName', '구름이')
+    expect(loadLastCharacterName()).toBe('구름이')
+  })
+
+  it('loadLastCharacterName — 저장된 이름이 없으면 null 반환', () => {
+    expect(loadLastCharacterName()).toBeNull()
+  })
+
+  it('saveLastCharacterName — localStorage 실패 시 예외 미발생', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError')
+    })
+    expect(() => saveLastCharacterName('구름이')).not.toThrow()
+  })
+
+  it('loadLastCharacterName — localStorage 실패 시 null 반환', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('SecurityError')
+    })
+    expect(loadLastCharacterName()).toBeNull()
   })
 })

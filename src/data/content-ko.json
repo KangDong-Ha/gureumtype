@@ -1,0 +1,42 @@
+{
+  "easy": [
+    {
+      "id": "ko-easy-001",
+      "text": "산은 높고 바다는 넓다",
+      "type": "poem",
+      "meaning": null
+    },
+    {
+      "id": "ko-easy-002",
+      "text": "봄바람 살랑살랑 꽃이 피어요",
+      "type": "poem",
+      "meaning": null
+    },
+    {
+      "id": "ko-easy-003",
+      "text": "하늘은 파랗고 구름은 하얗다",
+      "type": "poem",
+      "meaning": null
+    }
+  ],
+  "hard": [
+    {
+      "id": "ko-hard-001",
+      "text": "가는 말이 고와야 오는 말이 곱다",
+      "type": "proverb",
+      "meaning": "자신이 남에게 좋게 대해야 남도 자신에게 좋게 대한다는 뜻"
+    },
+    {
+      "id": "ko-hard-002",
+      "text": "세 살 버릇 여든까지 간다",
+      "type": "proverb",
+      "meaning": "어릴 때 몸에 밴 버릇은 늙어서도 고치기 어렵다는 뜻"
+    },
+    {
+      "id": "ko-hard-003",
+      "text": "호랑이도 제 말 하면 온다",
+      "type": "proverb",
+      "meaning": "마침 이야기하던 사람이 나타날 때 쓰는 말"
+    }
+  ]
+}

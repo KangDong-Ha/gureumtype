@@ -10,6 +10,8 @@ const STORAGE_KEYS = {
 // ── 캐릭터 저장/불러오기/삭제 ──────────────────────────────────────────────
 
 export function saveCharacter(data: CharacterState): void {
+  // 빈 이름(DUMMY 등)은 고스트 캐릭터 키를 만들 수 있으므로 저장하지 않음
+  if (!data.name) return
   try {
     const key = STORAGE_KEYS.character(data.name)
     localStorage.setItem(key, JSON.stringify(data))
@@ -38,6 +40,49 @@ export function clearCharacter(name: string): void {
     localStorage.removeItem(STORAGE_KEYS.character(name))
   } catch {
     console.warn('[storage] clearCharacter 실패:', name)
+  }
+}
+
+// 저장된 모든 캐릭터 이름 열거 — localStorage 키 스캔 (인덱스 불필요, 레거시 데이터 안전)
+export function loadAllCharacterNames(): string[] {
+  try {
+    const prefix = 'gureumtype:character:'
+    const names: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith(prefix)) {
+        names.push(key.slice(prefix.length))
+      }
+    }
+    return names.sort()
+  } catch {
+    console.warn('[storage] loadAllCharacterNames 실패')
+    return []
+  }
+}
+
+// 저장된 모든 캐릭터 객체 — 손상/누락 항목은 제외
+export function loadAllCharacters(): CharacterState[] {
+  return loadAllCharacterNames()
+    .map((name) => loadCharacter(name))
+    .filter((c): c is CharacterState => c !== null)
+}
+
+// 캐릭터 완전 삭제 — 캐릭터 + 진행현황 제거, 활성 캐릭터였으면 lastCharacterName도 정리
+export function deleteCharacter(name: string): void {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.character(name))
+    localStorage.removeItem(STORAGE_KEYS.stageProgress(name))
+    if (loadLastCharacterName() === name) {
+      const remaining = loadAllCharacterNames()
+      if (remaining.length > 0) {
+        saveLastCharacterName(remaining[0])
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.lastCharacterName)
+      }
+    }
+  } catch {
+    console.warn('[storage] deleteCharacter 실패:', name)
   }
 }
 

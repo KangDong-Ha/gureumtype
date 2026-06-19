@@ -7,6 +7,9 @@ import {
   loadStageProgress,
   saveLastCharacterName,
   loadLastCharacterName,
+  loadAllCharacterNames,
+  loadAllCharacters,
+  deleteCharacter,
 } from './storage'
 import type { CharacterState, StageProgress } from '../types'
 
@@ -62,6 +65,11 @@ describe('storage — 캐릭터', () => {
   it('loadCharacter — 손상된 JSON 시 null 반환', () => {
     localStorage.setItem('gureumtype:character:구름이', '{ invalid json }')
     expect(loadCharacter('구름이')).toBeNull()
+  })
+
+  it('saveCharacter — 빈 이름은 저장하지 않는다 (고스트 캐릭터 방지)', () => {
+    saveCharacter({ name: '', level: 1, xp: 0, maxXp: 100, difficulty: 'easy' })
+    expect(localStorage.getItem('gureumtype:character:')).toBeNull()
   })
 
   it('loadCharacter — JSON null 저장 시 null 반환', () => {
@@ -149,5 +157,62 @@ describe('lastCharacterName', () => {
       throw new Error('SecurityError')
     })
     expect(loadLastCharacterName()).toBeNull()
+  })
+})
+
+describe('storage — 다중 캐릭터 (AC 8.3)', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.restoreAllMocks()
+  })
+
+  it('loadAllCharacterNames — 저장된 모든 캐릭터 이름을 반환한다', () => {
+    saveCharacter({ name: '구름이', level: 1, xp: 0, maxXp: 100, difficulty: 'easy' })
+    saveCharacter({ name: '햇살이', level: 2, xp: 50, maxXp: 200, difficulty: 'hard' })
+    expect(loadAllCharacterNames()).toEqual(['구름이', '햇살이'])
+  })
+
+  it('loadAllCharacterNames — 캐릭터가 없으면 빈 배열', () => {
+    expect(loadAllCharacterNames()).toEqual([])
+  })
+
+  it('loadAllCharacters — 저장된 캐릭터 객체 목록을 반환한다', () => {
+    saveCharacter({ name: '구름이', level: 1, xp: 0, maxXp: 100, difficulty: 'easy' })
+    saveCharacter({ name: '햇살이', level: 2, xp: 50, maxXp: 200, difficulty: 'hard' })
+    const all = loadAllCharacters()
+    expect(all).toHaveLength(2)
+    expect(all.map((c) => c.name)).toEqual(['구름이', '햇살이'])
+  })
+
+  it('deleteCharacter — 캐릭터와 진행현황을 모두 제거한다', () => {
+    saveCharacter({ name: '구름이', level: 1, xp: 0, maxXp: 100, difficulty: 'easy' })
+    saveStageProgress('구름이', [{ stageIndex: 0, completed: true, bestWpm: 80 }])
+    deleteCharacter('구름이')
+    expect(loadCharacter('구름이')).toBeNull()
+    expect(loadStageProgress('구름이')).toEqual([])
+    expect(loadAllCharacterNames()).toEqual([])
+  })
+
+  it('deleteCharacter — 활성 캐릭터 삭제 시 lastCharacterName이 남은 캐릭터로 변경된다', () => {
+    saveCharacter({ name: '구름이', level: 1, xp: 0, maxXp: 100, difficulty: 'easy' })
+    saveCharacter({ name: '햇살이', level: 2, xp: 50, maxXp: 200, difficulty: 'hard' })
+    saveLastCharacterName('구름이')
+    deleteCharacter('구름이')
+    expect(loadLastCharacterName()).toBe('햇살이')
+  })
+
+  it('deleteCharacter — 마지막 캐릭터 삭제 시 lastCharacterName이 제거된다', () => {
+    saveCharacter({ name: '구름이', level: 1, xp: 0, maxXp: 100, difficulty: 'easy' })
+    saveLastCharacterName('구름이')
+    deleteCharacter('구름이')
+    expect(loadLastCharacterName()).toBeNull()
+  })
+
+  it('deleteCharacter — 비활성 캐릭터 삭제 시 lastCharacterName은 유지된다', () => {
+    saveCharacter({ name: '구름이', level: 1, xp: 0, maxXp: 100, difficulty: 'easy' })
+    saveCharacter({ name: '햇살이', level: 2, xp: 50, maxXp: 200, difficulty: 'hard' })
+    saveLastCharacterName('구름이')
+    deleteCharacter('햇살이')
+    expect(loadLastCharacterName()).toBe('구름이')
   })
 })

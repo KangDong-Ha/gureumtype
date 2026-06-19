@@ -1,5 +1,5 @@
 // 화면 라우팅 — App.tsx에서 useState<ScreenName>으로 사용
-export type ScreenName = 'welcome' | 'home' | 'game' | 'result'
+export type ScreenName = 'welcome' | 'select' | 'landing' | 'home' | 'game' | 'result'
 
 // 난이도 — 콘텐츠 JSON 필터링, 캐릭터 저장에 사용
 export type DifficultyLevel = 'easy' | 'hard'

@@ -79,6 +79,9 @@ function App() {
     return true
   }, [])
 
+  // 환영 흐름(이름입력·랜딩·캐릭터선택)에만 배경 이미지, 게임/홈/결과는 가독성을 위해 기존 배경 유지
+  const showBackdrop = screen === 'welcome' || screen === 'landing' || screen === 'select'
+
   const handleGoalReached = useCallback(() => setShowCelebration(true), [])
   const handleCelebrationDismiss = useCallback(() => setShowCelebration(false), [])
   const handleGameComplete = useCallback(
@@ -107,7 +110,11 @@ function App() {
   )
 
   return (
-    <div className="min-h-screen bg-cloud-sky overflow-x-hidden" data-testid="app-root">
+    <div
+      className="min-h-screen bg-cloud-sky bg-cover bg-center bg-no-repeat overflow-x-hidden"
+      style={showBackdrop ? { backgroundImage: "url('/background.jpg')" } : undefined}
+      data-testid="app-root"
+    >
       <div className="max-w-[480px] mx-auto px-5 py-6" data-testid="app-container">
         <KeyboardNotice />
         {didLevelUp && pendingCharacter && (
